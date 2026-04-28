@@ -1,6 +1,9 @@
 # 🏨 Hotel Booking Project
-## Ana Sol Larramendi Lopez
+
+
+## Ana Sol Larramendi Lopez Student Code: 6287897
 ## Monica Caycedo Student Code: 6397990
+
 This project is a hotel reservation system built as part of the *Cloud Exchange Services* course at Vanier College.  
 It includes:
 
