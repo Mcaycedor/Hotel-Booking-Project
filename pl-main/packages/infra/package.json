@@ -1,0 +1,18 @@
+{
+  "name": "@gen/infra-components",
+  "version": "0.0.0",
+  "description": "PF GEN Platform Infrastructure CDK Constructs",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "keywords": [
+    "aws",
+    "cdk",
+    "infrastructure",
+    "constructs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pf-gen-platform/pf-gen-platform.git",
+    "directory": "packages/infra"
+  }
+}

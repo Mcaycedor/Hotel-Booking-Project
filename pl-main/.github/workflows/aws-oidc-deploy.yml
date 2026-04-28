@@ -1,0 +1,135 @@
+name: AWS OIDC Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/**'
+      - 'libs/**'
+      - 'packages/**'
+      - '.github/workflows/aws-oidc-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write  # Required for OIDC token
+  contents: read   # Read repository contents
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+    
+    steps:
+      # ============ Setup ============
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # ============ AWS OIDC Authentication ============
+      - name: Assume AWS Role via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: us-east-1
+
+      - name: Verify AWS Credentials
+        run: |
+          aws sts get-caller-identity
+          echo "✓ Successfully authenticated with AWS via OIDC"
+
+      # ============ Build & Push API ============
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push API Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: profiler-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+                       -f apps/api-app/Dockerfile apps/api-app
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+                     $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "API_IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      # ============ Deploy API ============
+      - name: Deploy API to AWS App Runner
+        run: |
+          SERVICE_ARN=$(aws apprunner list-services --region us-east-1 \
+            --query "ServiceSummaryList[?ServiceName=='profiler-api'].ServiceArn" \
+            --output text)
+          
+          if [ -z "$SERVICE_ARN" ]; then
+            echo "Warning: App Runner service not found. Skipping deployment."
+          else
+            aws apprunner start-deployment \
+              --service-arn $SERVICE_ARN \
+              --region us-east-1
+            echo "✓ Started deployment for API"
+          fi
+
+      # ============ Build & Deploy Web ============
+      - name: Build Web Application
+        run: |
+          pnpm install
+          pnpm nx build web
+
+      - name: Upload Web to S3
+        run: |
+          aws s3 sync apps/web dist/ \
+            --bucket profiler-web \
+            --delete \
+            --cache-control "max-age=300" \
+            --exclude ".git/*"
+          echo "✓ Web deployed to S3"
+
+      - name: Invalidate CloudFront
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?CNAME.Items[0]=='profiler.example.com'].Id" \
+            --output text)
+          
+          if [ ! -z "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id $DISTRIBUTION_ID \
+              --paths "/*"
+            echo "✓ Invalidated CloudFront cache"
+          fi
+
+      # ============ Verification ============
+      - name: Verify Deployments
+        run: |
+          echo "Checking API health..."
+          curl -s https://api.profiler.example.com/health || echo "Warning: API not responding yet"
+          
+          echo "✓ Deployment complete!"
+
+      # ============ Notification ============
+      - name: Slack Notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Deploy ${{ job.status }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+            Branch: ${{ github.ref_name }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author

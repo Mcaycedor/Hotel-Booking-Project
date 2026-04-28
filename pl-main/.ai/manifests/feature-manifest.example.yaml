@@ -1,0 +1,23 @@
+feature_name: messaging
+feature_type: business
+channels:
+  - api
+  - web
+  - mobile
+contracts:
+  - createMessage
+  - listMessages
+  - markMessageRead
+dependencies:
+  - auth
+  - user-profile
+test_requirements:
+  - unit
+  - integration
+  - contract
+  - e2e
+deployment_impact:
+  - api
+  - web
+  - mobile
+status: scaffolded

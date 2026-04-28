@@ -1,0 +1,13 @@
+dev:
+  cloud: azure
+  api_runtime: azure-container-apps
+  web_runtime: azure-static-web-apps
+  secrets: azure-key-vault
+  registry: azure-container-registry
+
+prod:
+  cloud: aws
+  api_runtime: ecs-fargate
+  web_runtime: s3-cloudfront
+  secrets: aws-secrets-manager
+  registry: ecr

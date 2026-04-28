@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Configuration -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>Gen.Platform.Api.Services</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageDescription>API Services utility library for the PF GEN Platform containing helper
+      methods and common functionality.</PackageDescription>
+    <PackageAuthors>PF GEN Platform Team</PackageAuthors>
+    <PackageCompany>PF GEN Platform</PackageCompany>
+    <PackageProjectUrl>https://github.com/GovAlta-EMU/pf-gen-platform</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GovAlta-EMU/pf-gen-platform</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>utilities;api;services;pf;gen;platform;helpers</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright © 2025</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="**/*.cs" Pack="true" PackagePath="src\" />
+  </ItemGroup>
+
+</Project>

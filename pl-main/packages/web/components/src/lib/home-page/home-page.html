@@ -1,0 +1,12 @@
+<!-- Hero Banner Section -->
+<div class="hero-banner" [attr.data-testid]="heroBannerTestId()">
+>
+  <ng-content select="[hero-banner-content]"></ng-content>
+  <div slot="actions">
+    <ng-content select="[hero-banner-actions]"></ng-content>
+  </div>
+</div>
+
+<main>
+  <ng-content select="[content]"></ng-content>
+</main>

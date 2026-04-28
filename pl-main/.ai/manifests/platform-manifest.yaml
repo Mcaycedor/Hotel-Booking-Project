@@ -1,0 +1,32 @@
+platform_name: blank-product-line-platform
+repo_type: nx-monorepo
+channels:
+  - web
+  - mobile
+  - api
+environments:
+  dev:
+    cloud: azure
+  prod:
+    cloud: aws
+shared_principles:
+  - platform_must_remain_generic
+  - features_must_be_isolated
+  - tests_are_mandatory
+  - prompts_must_be_versioned
+  - contracts_must_be_explicit
+default_stack:
+  web: angular
+  mobile: flutter
+  api: dotnet
+  infra_dev: azure
+  infra_prod: aws
+quality_gates:
+  - lint
+  - build
+  - unit_tests
+  - integration_tests
+  - contract_tests
+  - e2e_tests
+  - security_scan
+  - container_scan

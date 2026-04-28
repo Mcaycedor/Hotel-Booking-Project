@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@gen/infra-components": ["packages/infra/src/index.ts"],
+      "@gen/ui-components": ["packages/web/components/src/index.ts"],
+      "@gen/web-services": ["packages/web/services/index.ts"],
+      "@gigisa/infra-components": ["libs/infra/src/index.ts"],
+      "@gigisa/ui-components": ["libs/web/components/src/index.ts"],
+      "@app/lib-ui-components": ["libs/web/components/src/index.ts"],
+      "@app/web-data-access": ["libs/web/data-access/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
